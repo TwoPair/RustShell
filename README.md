@@ -12,7 +12,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/TwoPair/RustShell">
-    <img src="images/rustshell_logo.png" alt="Logo" width="80" height="80">
+    <img src="images/rustshell_logo.png" alt="Logo" width="230" height="230">
   </a>
 
   <h3 align="center">RustShell</h3>
