@@ -62,6 +62,7 @@ This is a very simple shell using Rust.
 - [ ] redirection (>, <, >>)
 - [ ] pipe
 - [ ] $?
+- [ ] network-relative features
 
 ### maybe To-Do
 - [ ] customizing
