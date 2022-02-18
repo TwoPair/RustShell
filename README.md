@@ -46,7 +46,7 @@ This is a very simple shell using Rust.
 <!-- ROADMAP -->
 ## Roadmap
 
-- [ ] command implementation
+- [ ] built-in command implementation
   - [ ] echo - with `-n` option
   - [ ] cd (case test: no such file or directory)
   - [ ] pwd
@@ -56,6 +56,7 @@ This is a very simple shell using Rust.
   - [ ] exit
   - [ ] execve
   - [ ] history
+  - [ ] nc
 - [ ] prompt (입력받는거, 엔터, 지우는거, 방향키 입력받는지 체크)
 - [ ] signal (ctrl-c, ctrl-d, ctrl-\\)
 - [ ] redirection (>, <, >>)
@@ -70,5 +71,6 @@ This is a very simple shell using Rust.
 I catched some idea from...
 - [lina0322/42seoul_minishell](https://github.com/lina0322/42seoul_minishell) -> take a roadmap idea
 - [Build Your Own Shell using Rust](https://www.joshmcguigan.com/blog/build-your-own-shell-rust/) -> how to in Rust
+- [Shell search PATH – finding and running commands](http://teaching.idallen.com/cst8207/13w/notes/400_search_path.html)
 
 See the [open issues](https://github.com/othneildrew/Best-README-Template/issues) for a full list of proposed features (and known issues).
