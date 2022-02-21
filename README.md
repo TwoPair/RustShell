@@ -54,7 +54,6 @@ This is a very simple shell using Rust.
   - [ ] unset
   - [ ] env
   - [ ] exit
-  - [ ] execve
   - [ ] history
   - [ ] nc
 - [ ] prompt (입력받는거, 엔터, 지우는거, 방향키 입력받는지 체크)
