@@ -2,30 +2,59 @@
 mod prompt;
 mod command;
 
-use std::env;
 use std::io::stdin;
 use std::rc::Rc;
 use std::cell::RefCell;
-use std::process::{Child, Stdio}; // ! "Command" will not use
+use std::process::{Child, Stdio}; // ! "std::process::Command" will not use
 
 use command::builtin::BuiltInList as BL;
 use command::cmd::CmdPart         as CMDPART;
 use command::cmd_cd::CmdChangeDirectory as CD;
+use command::cmd_pwd::CmdPwd            as PWD;
 
-/**
- * TODO: 절대/상대 경로상의 명령어 뒤져서 안나오면 다음으로 파일/디렉터리 찾는다
- * TODO: 그럼 빌트인 커맨드는 어떡하지??? -> 명령어 위치인지 인자 위치인지 검사하면 된다! 
- */
+// TODO: 절대/상대 경로상의 명령어 뒤져서 안나오면 다음으로 파일/디렉터리 찾는다
+
+macro_rules! multiaccessvec_constructor {
+    ($($s:ident, $name:tt),*) => {
+        vec![
+        $(
+            Rc::new(RefCell::new(
+                $s { name: String::from($name), }
+            )),
+        )*  // $( somthing )*    <- repeat for length of patterns
+        ]
+    };
+}
+
+macro_rules! builtin_constructor {
+    ($bl:ident, $var:ident, {$([$s:ident, $name:tt]),*}) => {
+        let $var = $bl {
+            blist: multiaccessvec_constructor!($($s, $name),*),
+        };
+    };
+}
 
 fn main() {
-    // init process
-    let builtin_list = BL {
-        blist: vec![
-            Rc::new(RefCell::new(
-                CD { name: String::from("cd"), }
-            )),
-        ],
-    };
+    // [init process]
+    // Expected the result of macro ->
+    // ```
+    // let builtin_list = BL {
+    //     blist: vec![
+    //         Rc::new(RefCell::new(
+    //             CD { name: String::from("cd"), }
+    //         )),
+    //         Rc::new(RefCell::new(
+    //             PWD { name: String::from("pwd"), }
+    //         )),
+    //     ],
+    // };
+    // ```
+    builtin_constructor!(BL, builtin_list,
+        {
+            [CD, "cd"],
+            [PWD, "pwd"]
+        }
+    );
     
     loop {
         // print prompt
@@ -38,7 +67,6 @@ fn main() {
 
         builtin_list.execute_cmd(cp.command, &cp.args);
 
-        // // TODO: 1. 절대 경로 명령어 실행 / 2. 상대 경로 명령어 실행
         // Command::new(cmd)
         //         .spawn()
         //         .unwrap();
@@ -47,6 +75,8 @@ fn main() {
 
 #[cfg(test)]
 fn path_print() {
+    use std::env;
+
     let key = "PATH";
     match env::var_os(key) {
         Some(paths) => {

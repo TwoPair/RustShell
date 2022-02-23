@@ -1,4 +1,3 @@
-use std::io;
 use std::iter::Iterator;
 use std::str::SplitWhitespace;
 
@@ -21,14 +20,17 @@ fn parse_input<'a>(input: &'a mut str) -> (&'a str, SplitWhitespace<'a>) {
 // [Trait: Cmd]
 // - Command interface
 pub trait Cmd {
-    // actual functionality of command
-    fn execute(&self, args: &SplitWhitespace) -> io::Result<()>;
+    type Error;
 
+    // actual functionality of command
+    fn execute(&self, args: &SplitWhitespace);
+
+    // handling err
+    // * Success result should remain logs or feedback to caller.
+    fn error_handling(&self, err: Self::Error);
+    
     // return current command name
     fn get_cmd_name(&self) -> &str;
-    
-    // handling err
-    fn error_handling(&self, err: io::Result<()>) -> io::Result<()>;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

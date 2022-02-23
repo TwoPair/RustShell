@@ -1,3 +1,4 @@
+use std::io;
 use std::str::SplitWhitespace;
 use std::{
     rc::Rc,
@@ -9,8 +10,8 @@ use super::cmd::Cmd;
 // Type Aliases
 ////////////////////////////////////////////////////////////////////////////////
 
-type Inner<T> = Rc<RefCell<T>>;
-type MultiAccessVec<T> = Vec<Inner<T>>;
+type Wrapper = Rc<RefCell<dyn Cmd<Error = io::Error>>>;
+type MultiAccessVec = Vec<Wrapper>;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Structures
@@ -20,20 +21,16 @@ type MultiAccessVec<T> = Vec<Inner<T>>;
 // - Manage the Built-in command list
 // * Must be initialized in the **main.rs**
 // * before using inner functions.
-pub struct BuiltInList<T>
-    where T: Cmd,
-{
-    pub blist: MultiAccessVec<T>,
+pub struct BuiltInList {
+    pub blist: MultiAccessVec,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // Inherent methods
 ////////////////////////////////////////////////////////////////////////////////
 
-impl<T> BuiltInList<T>
-    where T: Cmd,
-{
-    pub fn get_builtin_list(&self) -> &MultiAccessVec<T> {
+impl BuiltInList {
+    pub fn get_builtin_list(&self) -> &MultiAccessVec {
         &self.blist
     }
 
@@ -42,11 +39,7 @@ impl<T> BuiltInList<T>
         for b in self.blist.iter() {
             let b = b.borrow();
             if cmd == b.get_cmd_name() {
-                // TODO: logging system
-                match b.execute(args) {
-                    Ok(_) => println!("[{}] built-in successfully called", cmd),
-                    Err(e) => println!("[{}] {}", cmd, e),
-                }
+                b.execute(args);
                 break;
             }
         }

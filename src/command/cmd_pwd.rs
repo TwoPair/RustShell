@@ -1,7 +1,7 @@
 use std::{
     io,
     env,
-    path::Path,
+    path::PathBuf,
     iter::Iterator,
     str::SplitWhitespace
 };
@@ -11,35 +11,30 @@ use super::cmd::Cmd;
 // Structures
 ////////////////////////////////////////////////////////////////////////////////
 
-pub struct CmdChangeDirectory {
+pub struct CmdPwd {
     pub name: String,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// Common trait implementations for CmdChangeDirectory
+// Common trait implementations for CmdPwd
 ////////////////////////////////////////////////////////////////////////////////
 
-impl Cmd for CmdChangeDirectory {
+impl Cmd for CmdPwd {
     type Error = io::Error;
 
-    fn execute(&self, args: &SplitWhitespace) {
-        let tmp = args.clone();     // peekable() takes ownership... ;(
-        let new_dir = tmp.peekable().peek().map_or("/", |&dir| dir);
-        let root = Path::new(new_dir);
-
-        let cmd = self.get_cmd_name();
-        match env::set_current_dir(&root) {
-            // TODO: Ok(_) => {not printing, but logging}
-            Ok(_) => println!("{}: built-in successfully called", cmd),
+    fn execute(&self, _args: &SplitWhitespace) {
+        match env::current_dir() {
+            Ok(path) => println!("{}", path.display()),
             Err(e) => self.error_handling(e),
         }
     }
     
     fn error_handling(&self, err: Self::Error) {
-        // ex) bash: cd: no such file or directory
         let cmd = self.get_cmd_name();
         // TODO: classify errors below using err value
-        println!("{}: no such file or directory", cmd);
+        let err_str1 = "Current directory does not exist";
+        let err_str2 = "There are insufficient permissions to access the current directory";
+        println!("{}: [{}] OR [{}]", cmd, err_str1, err_str2);
     }
 
     fn get_cmd_name(&self) -> &str {
