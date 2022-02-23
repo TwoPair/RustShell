@@ -50,7 +50,7 @@ This is a very simple shell using Rust.
   - [ ] echo - with `-n` option
   - [x] cd (case test: no such file or directory)
   - [x] pwd
-  - [ ] exit
+  - [x] exit
   - [ ] history
   - [ ] nc
 - [ ] prompt (customizing, up/down-arrow)

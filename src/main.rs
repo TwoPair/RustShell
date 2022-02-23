@@ -63,10 +63,14 @@ fn main() {
         let mut input = String::new();
         stdin().read_line(&mut input).unwrap();
 
-        let cp = CMDPART::new(&mut input);
-
-        builtin_list.execute_cmd(cp.command, &cp.args);
-
+        if input == "exit" {
+            // TODO: check if there were any running command or process
+            return;
+        } else {
+            let cp = CMDPART::new(&mut input);
+            builtin_list.execute_cmd(cp.command, &cp.args);
+        }
+        
         // Command::new(cmd)
         //         .spawn()
         //         .unwrap();
