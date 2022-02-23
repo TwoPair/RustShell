@@ -30,6 +30,7 @@ pub struct BuiltInList {
 ////////////////////////////////////////////////////////////////////////////////
 
 impl BuiltInList {
+    #[allow(dead_code)]
     pub fn get_builtin_list(&self) -> &MultiAccessVec {
         &self.blist
     }

@@ -35,7 +35,7 @@ impl Cmd for CmdChangeDirectory {
         }
     }
     
-    fn error_handling(&self, err: Self::Error) {
+    fn error_handling(&self, _err: Self::Error) {
         // ex) bash: cd: no such file or directory
         let cmd = self.get_cmd_name();
         // TODO: classify errors below using err value

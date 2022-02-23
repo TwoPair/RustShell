@@ -1,8 +1,6 @@
 use std::{
     io,
     env,
-    path::PathBuf,
-    iter::Iterator,
     str::SplitWhitespace
 };
 use super::cmd::Cmd;
@@ -29,7 +27,7 @@ impl Cmd for CmdPwd {
         }
     }
     
-    fn error_handling(&self, err: Self::Error) {
+    fn error_handling(&self, _err: Self::Error) {
         let cmd = self.get_cmd_name();
         // TODO: classify errors below using err value
         let err_str1 = "Current directory does not exist";
