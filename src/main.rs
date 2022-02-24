@@ -78,16 +78,19 @@ fn main() {
 }
 
 #[cfg(test)]
-fn path_print() {
-    use std::env;
-
-    let key = "PATH";
-    match env::var_os(key) {
-        Some(paths) => {
-            for path in env::split_paths(&paths) {
-                println!("{}", path.display());
+mod test {
+    #[test]
+    fn path_print() {
+        use std::env;
+    
+        let key = "PATH";
+        match env::var_os(key) {
+            Some(paths) => {
+                for path in env::split_paths(&paths) {
+                    println!("{}", path.display());
+                }
             }
+            None => println!("couldn't interpret {}", key),
         }
-        None => println!("couldn't interpret {}", key),
     }
 }
