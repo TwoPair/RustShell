@@ -9,8 +9,10 @@ use std::process::{Child, Stdio}; // ! "std::process::Command" will not use
 
 use command::builtin::BuiltInList as BL;
 use command::cmd::CmdPart         as CMDPART;
-use command::cmd_cd::CmdChangeDirectory as CD;
-use command::cmd_pwd::CmdPwd            as PWD;
+use command::cmd_cd::CmdChangeDirectory  as CD;
+use command::cmd_pwd::CmdPwd             as PWD;
+use command::cmd_chat::CmdChat           as CHAT;
+use command::cmd_fileshare::CmdFileShare as FILESHARE;
 
 // TODO: 절대/상대 경로상의 명령어 뒤져서 안나오면 다음으로 파일/디렉터리 찾는다
 
@@ -34,7 +36,8 @@ macro_rules! builtin_constructor {
     };
 }
 
-fn main() {
+#[tokio::main]
+async fn main() {
     // [init process]
     // Expected the result of macro ->
     // ```
@@ -52,7 +55,9 @@ fn main() {
     builtin_constructor!(BL, builtin_list,
         {
             [CD, "cd"],
-            [PWD, "pwd"]
+            [PWD, "pwd"],
+            [CHAT, "chat"],
+            [FILESHARE, "fileshare"]
         }
     );
     

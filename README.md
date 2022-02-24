@@ -48,17 +48,18 @@ This is a very simple shell using Rust.
 
 - [ ] built-in command implementation
   - [ ] echo - with `-n` option
-  - [x] cd (case test: no such file or directory)
+  - [x] cd
   - [x] pwd
   - [x] exit
   - [ ] history
   - [ ] nc
+  - [ ] chat
+  - [ ] fileshare
 - [ ] prompt (customizing, up/down-arrow)
 - [ ] signal (ctrl-c, ctrl-d, ctrl-\\)
 - [ ] redirection (>, <, >>)
 - [ ] pipe
 - [ ] $?
-- [ ] network-relative features
 
 ### maybe To-Do
 - [ ] customizing
