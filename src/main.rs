@@ -5,7 +5,6 @@ mod command;
 use std::io::stdin;
 use std::rc::Rc;
 use std::cell::RefCell;
-use std::process::{Child, Stdio}; // ! "std::process::Command" will not use
 
 use command::builtin::BuiltInList as BL;
 use command::cmd::CmdPart         as CMDPART;
