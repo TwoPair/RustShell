@@ -19,6 +19,7 @@ fn parse_input<'a>(input: &'a mut str) -> (&'a str, SplitWhitespace<'a>) {
 
 // [Trait: Cmd]
 // - Command interface
+// TODO: async_trait 이용해서 비동기로 바꾸기
 pub trait Cmd {
     type Error;
 
