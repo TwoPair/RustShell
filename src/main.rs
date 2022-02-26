@@ -28,8 +28,8 @@ macro_rules! multiaccessvec_constructor {
 }
 
 macro_rules! builtin_constructor {
-    ($bl:ident, $var:ident, {$([$s:ident, $name:tt]),*}) => {
-        let $var = $bl {
+    ($bl:ident, {$([$s:ident, $name:tt]),*}) => {
+        $bl {
             blist: multiaccessvec_constructor!($($s, $name),*),
         };
     };
@@ -51,7 +51,7 @@ async fn main() {
     //     ],
     // };
     // ```
-    builtin_constructor!(BL, builtin_list,
+    let builtin_list = builtin_constructor!(BL,
         {
             [CD, "cd"],
             [PWD, "pwd"],
@@ -84,7 +84,7 @@ async fn main() {
 #[cfg(test)]
 mod test {
     #[test]
-    fn path_print() {
+    fn print_path() {
         use std::env;
     
         let key = "PATH";
