@@ -1,5 +1,6 @@
 pub mod cmd;
 pub mod builtin;
+pub mod consts;
 
 pub mod cmd_cd;
 pub mod cmd_pwd;
