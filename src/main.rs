@@ -59,6 +59,11 @@ async fn main() {
             [FILESHARE, "fileshare"]
         }
     );
+
+    use std::fs::File;
+    use command::consts::CHAT_USER_DB;
+    // create() destroy the old content if the file already existed.
+    let mut file = File::create(CHAT_USER_DB).unwrap();
     
     loop {
         // print prompt
