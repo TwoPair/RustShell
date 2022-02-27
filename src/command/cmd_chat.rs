@@ -1,9 +1,10 @@
 use std::{
-    format_args,
-    io::{self as sio, Read, Write, BufRead, BufReader},
+    env,
+    io::{self as sio, Read, Write, BufRead, BufReader as stdBufReader},
     error::Error,
     path::Path,
-    str::SplitWhitespace
+    str::SplitWhitespace,
+    fs::{File as stdFile, OpenOptions}
 };
 use futures::{
     executor::block_on,
@@ -32,7 +33,6 @@ use tokio::{
         AsyncWriteExt,
         BufWriter
     },
-    fs::File
 };
 use log::{info, debug};
 use serde::{Serialize, Deserialize};
@@ -95,7 +95,7 @@ impl CmdChat {
     // inner execute function for asynchronous programming
     async fn _execute(&self) {
         match execute_chat().await {
-            // TODO: should take a more detail
+            // TODO: should show a more detail
             Ok(_) => println!("Good"),
             Err(e) => println!("{}: {}", self.name, e),
         }
@@ -112,8 +112,15 @@ impl NetworkBehaviourEventProcess<FloodsubEvent> for MyBehaviour {
                 data,
                 message.source
             );
-            // TODO: nickname 나타내도록 바꾸기!
-            println!("{}: {}", message.source, data);
+
+            if let Some(nick) = 
+                check_user_existence(message.source.to_base58().as_ref())
+                .unwrap()
+            {
+                println!("{}: {}", nick, data);
+            } else {
+                println!("{}: {}", message.source, data);
+            }
         }
     }
 }
@@ -169,7 +176,7 @@ impl NetworkBehaviourEventProcess<MdnsEvent> for MyBehaviour {
 // [The parts I touched]
 // - move pre-defined struct, MyBehavior, to outside
 // - printing messages and infos as neat
-// - (not yet) participants have a nickname
+// - participants have a nickname
 // - (not yet) choose a chat channel
 // - (not yet) when a session is expired, ask the user to get in again
 async fn execute_chat() -> Result<(), Box<dyn Error>> {
@@ -199,7 +206,7 @@ async fn execute_chat() -> Result<(), Box<dyn Error>> {
 
     // CUSTOM: user can take his own nickname
     let user: User = init_user(peer_id.to_base58()).await?;
-
+    let my_nickname = String::from_utf8_lossy(&user.nickname).into_owned();
 
     // Create a Swarm to manage peers and events.
     let mut swarm = {
@@ -224,7 +231,7 @@ async fn execute_chat() -> Result<(), Box<dyn Error>> {
     if let Some(to_dial) = std::env::args().nth(1) {
         let addr: Multiaddr = to_dial.parse()?;
         swarm.dial(addr)?;
-        println!("Dialed {:?}", to_dial)
+        println!("Dialed {:?}", to_dial);
     }
 
     // Read full lines from stdin
@@ -269,14 +276,31 @@ async fn init_user(peer_id: String) -> sio::Result<User> {
         nickname: nick.trim().as_bytes().to_vec(),
     };
 
-    if let Ok(()) = json_write_to_file(CHAT_USER_DB, &user.peer_id).await {
+    if let Ok(()) = write_json_file(CHAT_USER_DB, &user) {
         debug!("Successfully appended to the file");
     }
 
     Ok(user)
 }
 
-async fn json_read_from_file<P, C>(path: P, target_id: &str) -> Result<Option<User>, Box<dyn Error>>
+fn check_user_existence(target_id: &str) -> Result<Option<String>, Box<dyn Error>> {
+    let reader = read_json_file(CHAT_USER_DB)?;
+
+    // check existence of target's id
+    for line in reader.lines() {
+        let user: User = serde_json::from_str(line?.as_ref())?;
+        info!("deserialized content: {:?}", user);
+        
+        if target_id == user.peer_id {
+            let s = String::from_utf8_lossy(&user.nickname).into_owned();  
+            return Ok(Some(s))
+        }
+    }
+
+    Ok(None)
+}
+
+fn read_json_file<P>(path: P) -> Result<stdBufReader<std::fs::File>, Box<dyn Error>>
     where P: AsRef<Path>,
 {
     // TODO: /tmp 이용하도록 바꾸기
@@ -284,25 +308,19 @@ async fn json_read_from_file<P, C>(path: P, target_id: &str) -> Result<Option<Us
     // let temp_directory = env::temp_dir();
     // let temp_file = temp_directory.join("file");
 
-    let file = File::open(path).await
-                    .expect("could not open file");
+    // tokio::fs::File, not std::fs::File
+    let file = OpenOptions::new()
+                            .read(true)
+                            .open(path)
+                            .expect("could not open file");
+
     // change tokio file to std file for iterator
-    let reader = BufReader::new(file.try_into_std().unwrap());
+    let reader = stdBufReader::new(file);
 
-    // check existence of target's id
-    for line in reader.lines() {
-        let user: User = serde_json::from_str(line?.as_ref())?;
-        debug!("deserialized content: {:?}", user);
-        
-        if target_id == user.peer_id {
-            return Ok(Some(user))
-        }
-    }
-
-    Ok(None)
+    Ok(reader)
 }
 
-async fn json_write_to_file<P, C>(path: P, content: &C) -> Result<(), Box<dyn Error>>
+fn write_json_file<P, C>(path: P, content: &C) -> Result<(), Box<dyn Error>>
     where P: AsRef<Path>,
           C: ?Sized + Serialize,
 {
@@ -311,13 +329,18 @@ async fn json_write_to_file<P, C>(path: P, content: &C) -> Result<(), Box<dyn Er
     // let temp_directory = env::temp_dir();
     // let temp_file = temp_directory.join("file");
 
-    let mut file = File::open(path).await
-                        .expect("could not open file");
+    let mut file = OpenOptions::new()
+                            .append(true)
+                            .open(path)
+                            .expect("could not open file");
     let serialized = serde_json::to_string(content)?;
     debug!("serialized content: {}", serialized);
 
     // TODO: 이미 있는지 중복 검사 + 있다면 업데이트, 없으면 새로 쓰기
-    file.write_all(serialized.as_bytes()).await?;
+    // TODO: 저장 형식 바꾸기(현재 json 형식이 아닌 줄마다 그냥 저장), 포트 기준으로 할까?
+    if let Err(e) = writeln!(file, "{}", serialized) {
+        eprintln!("Couldn't write to file: {}", e);
+    }
 
     Ok(())
 }

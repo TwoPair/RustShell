@@ -1,1 +1,2 @@
-pub const CHAT_USER_DB: &str = "./user_db.json";
+pub const CHAT_USER_DB: &str = 
+    "/home/karatus/works/RustShell/src/command/user_db.json";

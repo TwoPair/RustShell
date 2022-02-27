@@ -60,10 +60,11 @@ async fn main() {
         }
     );
 
-    use std::fs::File;
-    use command::consts::CHAT_USER_DB;
+    // TODO: cmd_chat용 json 파일 초기화 방법론 고려하기
+    // use std::fs::File;
+    // use command::consts::CHAT_USER_DB;
     // create() destroy the old content if the file already existed.
-    let mut file = File::create(CHAT_USER_DB).unwrap();
+    // let mut file = File::create(CHAT_USER_DB).unwrap();
     
     loop {
         // print prompt
