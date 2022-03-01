@@ -1,25 +1,8 @@
 use std::iter::Iterator;
 use std::str::SplitWhitespace;
 
-////////////////////////////////////////////////////////////////////////////////
-// Functions
-////////////////////////////////////////////////////////////////////////////////
-
-fn parse_input<'a>(input: &'a mut str) -> (&'a str, SplitWhitespace<'a>) {
-    let mut parts = input.trim().split_whitespace();
-    let cmd = parts.next().unwrap();
-    let args = parts;
-
-    (cmd, args)
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// Traits
-////////////////////////////////////////////////////////////////////////////////
-
-// [Trait: Cmd]
-// - Command interface
 // TODO: async_trait 이용해서 비동기로 바꾸기
+// Command interface
 pub trait Cmd {
     type Error;
 
@@ -34,22 +17,13 @@ pub trait Cmd {
     fn get_cmd_name(&self) -> &str;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// Structures
-////////////////////////////////////////////////////////////////////////////////
-
-// [struct CmdPart<'a>]
-// - save parsing of input
+// save parsing of input
 // TODO: it will be associated with other CmdPart structs
 pub struct CmdPart<'a> {
     pub command: &'a str,
     pub args: SplitWhitespace<'a>,
     prev_cmd: bool,
 }
-
-////////////////////////////////////////////////////////////////////////////////
-// Inherent methods
-////////////////////////////////////////////////////////////////////////////////
 
 impl<'a> CmdPart<'a> {
     pub fn new(input: &'a mut str) -> Self {
@@ -60,4 +34,12 @@ impl<'a> CmdPart<'a> {
             prev_cmd: false,
         }
     }
+}
+
+fn parse_input<'a>(input: &'a mut str) -> (&'a str, SplitWhitespace<'a>) {
+    let mut parts = input.trim().split_whitespace();
+    let cmd = parts.next().unwrap();
+    let args = parts;
+
+    (cmd, args)
 }

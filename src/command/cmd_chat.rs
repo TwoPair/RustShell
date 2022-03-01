@@ -40,34 +40,20 @@ use serde::{Serialize, Deserialize};
 use super::cmd::Cmd;
 use super::consts::CHAT_USER_DB;  //"./user_db.json"
 
-////////////////////////////////////////////////////////////////////////////////
-// Structures
-////////////////////////////////////////////////////////////////////////////////
-
 pub struct CmdChat {
     pub name: String,
 }
 
-// We create a custom network behaviour that combines floodsub and mDNS.
-// The derive generates a delegating `NetworkBehaviour` impl which in turn
-// requires the implementations of `NetworkBehaviourEventProcess` for
-// the events of each behaviour.
-#[derive(NetworkBehaviour)]
-#[behaviour(event_process = true)]
-struct MyBehaviour {
-    floodsub: Floodsub,
-    mdns: Mdns,
+impl CmdChat {
+    // inner execute function for asynchronous programming
+    async fn _execute(&self) {
+        match execute_chat().await {
+            // TODO: should show a more detail
+            Ok(_) => println!("Good"),
+            Err(e) => println!("{}: {}", self.name, e),
+        }
+    }
 }
-
-#[derive(Serialize, Deserialize, Debug)]
-struct User {
-    peer_id: String,
-    nickname: Vec<u8>,
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// Common trait implementations
-////////////////////////////////////////////////////////////////////////////////
 
 impl Cmd for CmdChat {
     type Error = io::Error;
@@ -87,19 +73,15 @@ impl Cmd for CmdChat {
     }
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// Inherent methods
-////////////////////////////////////////////////////////////////////////////////
-
-impl CmdChat {
-    // inner execute function for asynchronous programming
-    async fn _execute(&self) {
-        match execute_chat().await {
-            // TODO: should show a more detail
-            Ok(_) => println!("Good"),
-            Err(e) => println!("{}: {}", self.name, e),
-        }
-    }
+// We create a custom network behaviour that combines floodsub and mDNS.
+// The derive generates a delegating `NetworkBehaviour` impl which in turn
+// requires the implementations of `NetworkBehaviourEventProcess` for
+// the events of each behaviour.
+#[derive(NetworkBehaviour)]
+#[behaviour(event_process = true)]
+struct MyBehaviour {
+    floodsub: Floodsub,
+    mdns: Mdns,
 }
 
 impl NetworkBehaviourEventProcess<FloodsubEvent> for MyBehaviour {
@@ -145,9 +127,11 @@ impl NetworkBehaviourEventProcess<MdnsEvent> for MyBehaviour {
     }
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// Functions
-////////////////////////////////////////////////////////////////////////////////
+#[derive(Serialize, Deserialize, Debug)]
+struct User {
+    peer_id: String,
+    nickname: Vec<u8>,
+}
 
 // Copyright 2018 Parity Technologies (UK) Ltd.
 //
